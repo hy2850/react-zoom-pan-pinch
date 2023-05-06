@@ -64,7 +64,7 @@ export const calculatePinchZoom = (
   currentDistance: number,
 ): number => {
   const { pinchStartScale, pinchStartDistance, setup } = contextInstance;
-  const { maxScale, minScale, zoomAnimation, disablePadding } = setup;
+  const { maxScale, minScale, zoomAnimation, disablePadding, pinch } = setup;
   const { size, disabled } = zoomAnimation;
 
   if (!pinchStartScale || pinchStartDistance === null || !currentDistance) {
@@ -75,8 +75,10 @@ export const calculatePinchZoom = (
     return contextInstance.transformState.scale;
   }
 
+  const { step } = pinch; // 'step' will be multiplied to the scale changes by pinch
+
   const touchProportion = currentDistance / pinchStartDistance;
-  const scaleDifference = touchProportion * pinchStartScale;
+  const scaleDifference = touchProportion * pinchStartScale * step;
 
   return checkZoomBounds(
     roundNumber(scaleDifference, 2),
@@ -85,4 +87,18 @@ export const calculatePinchZoom = (
     size,
     !disabled && !disablePadding,
   );
-};
+
+  // Wheel-like scale calculation
+  // const { scale } = contextInstance.transformState;
+  // const targetScale = scale + touchProportion * step
+  // // const targetScale = pinchStartScale + touchProportion * step // ? scale or pinchStartScale
+  //
+  // return checkZoomBounds(
+  //   roundNumber(targetScale, 3),
+  //   minScale,
+  //   maxScale,
+  //   size,
+  //   !disabled && !disablePadding,
+  // );
+
+}
